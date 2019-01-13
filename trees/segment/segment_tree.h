@@ -1,3 +1,6 @@
+#ifndef FONTUS_SEGMENT_TREE_H
+#define FONTUS_SEGMENT_TREE_H
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -134,3 +137,5 @@ private:
 };
 
 } // namespace fontus
+
+#endif /* FONTUS_SEGMENT_TREE_H */
