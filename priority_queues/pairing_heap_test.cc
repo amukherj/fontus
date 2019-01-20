@@ -100,14 +100,22 @@ int main() {
 	cout << "-------\n"; */
 
 	fontus::PairingHeap<std::string> heeps("hello");
+	cout << heeps.size() << '\n';
 	heeps.push("hola");
+	cout << heeps.size() << '\n';
 	heeps.push("servus");
+	cout << heeps.size() << '\n';
 	heeps.push("boker tov");
+	cout << heeps.size() << '\n';
 	heeps.push("hallo");
+	cout << heeps.size() << '\n';
 	heeps.push("nihao");
+	cout << heeps.size() << '\n';
 	heeps.push("bongiorno");
+	cout << heeps.size() << '\n';
 
 	for (int i = 0; i < 7; ++i) {
 		cout << heeps.pop() << '\n';
+		cout << heeps.size() << '\n';
 	}
 }

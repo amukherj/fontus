@@ -27,10 +27,10 @@ struct PairingHeapNode {
 template <typename T, typename Cmp = std::greater<T>>
 class PairingHeap {
 public:
-	PairingHeap() : root{}, size{0} {}
+	PairingHeap() : root{}, size_{0} {}
 
 	PairingHeap(T value) : root(std::make_unique<PairingHeapNode<T>>(value)),
-		size{0} {}
+		size_{1} {}
 
 	PairingHeap(PairingHeap&&) = default;
 	PairingHeap& operator=(PairingHeap&&) = default;
@@ -52,6 +52,10 @@ public:
 		return !root;
 	}
 
+	size_t size() const {
+		return size_;
+	}
+
 	void merge(PairingHeap<T, Cmp>& that) {
 		if (empty() && !that.empty()) {
 			root = std::move(that.root);
@@ -68,7 +72,7 @@ public:
 	void push(T value) {
 		PairingHeap<T, Cmp> new_heap(value);
 		this->merge(new_heap);
-		++size;
+		++size_;
 	}
 
 	T pop() {
@@ -78,7 +82,7 @@ public:
 
 		T result = root->value;
 		root = merge_pairs(root->sub_heaps);
-		--size;
+		--size_;
 
 		return result;
 	}
@@ -86,7 +90,7 @@ public:
 private:
 	typedef typename PairingHeapNode<T>::Ptr PtrType;
 	PtrType root;
-	size_t size;
+	size_t size_;
 
 	PairingHeap(PtrType node) : root(move(node)) {}
 
