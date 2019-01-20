@@ -1,6 +1,7 @@
 #include "pairing_heap.h"
 #include <iostream>
 #include <random>
+#include <string>
 using namespace std;
 
 class RandomInt {
@@ -49,7 +50,7 @@ int main() {
 	cout << n << " popped\n";
 	heap.print(cout);
 
-	/* cout << "Heap ops\n";
+	cout << "Heap ops\n";
 	RandomInt r(0, 200);
 	fontus::PairingHeap<int> heep(r.next());
 	for (int i = 0; i < 20; ++i) {
@@ -59,9 +60,9 @@ int main() {
 
 	for (int i = 0; i < 21; ++i) {
 		cout << "-> " << heep.pop() << '\n';
-	} */
+	}
 
-	fontus::PairingHeap<int> heap2(9);
+	/* fontus::PairingHeap<int> heap2(9);
 	heap2.push(100);
 	heap2.push(76);
 	heap2.push(3);
@@ -96,5 +97,17 @@ int main() {
 	cout << heap2.pop() << '\n';
 	cout << "-------\n";
 	cout << heap2.pop() << '\n';
-	cout << "-------\n";
+	cout << "-------\n"; */
+
+	fontus::PairingHeap<std::string> heeps("hello");
+	heeps.push("hola");
+	heeps.push("servus");
+	heeps.push("boker tov");
+	heeps.push("hallo");
+	heeps.push("nihao");
+	heeps.push("bongiorno");
+
+	for (int i = 0; i < 7; ++i) {
+		cout << heeps.pop() << '\n';
+	}
 }

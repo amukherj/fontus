@@ -2,8 +2,6 @@
 #include <memory>
 #include <algorithm>
 #include <ostream>
-#include <iostream>
-using namespace std;
 
 namespace fontus {
 
@@ -26,12 +24,12 @@ struct PairingHeapNode {
 	}
 };
 
-template <typename T, typename Cmp = greater<T>>
+template <typename T, typename Cmp = std::greater<T>>
 class PairingHeap {
 public:
 	PairingHeap() : root{}, size{0} {}
 
-	PairingHeap(T value) : root(make_unique<PairingHeapNode<T>>(value)),
+	PairingHeap(T value) : root(std::make_unique<PairingHeapNode<T>>(value)),
 		size{0} {}
 
 	PairingHeap(PairingHeap&&) = default;
