@@ -81,9 +81,11 @@ private:
 
     if (base->elem == elem) {
       if (base->left == nullptr) {
+        delete base;
         return base->right;
       }
       if (base->right == nullptr) {
+        delete base;
         return base->left;
       }
 

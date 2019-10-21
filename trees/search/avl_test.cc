@@ -12,5 +12,7 @@ int main() {
   tree.insert(17);
   tree.bfs([](const AvlNode<int>* p){ std::cout << p->elem << '\n'; });
   tree.remove(5);
+  tree.remove(10);
+  tree.remove(17);
   tree.bfs([](const AvlNode<int>* p){ std::cout << p->elem << '\n'; });
 }
