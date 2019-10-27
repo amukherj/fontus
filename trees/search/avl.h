@@ -2,6 +2,7 @@
 #define AVL_H
 
 #include <queue>
+#include <tuple>
 
 template <class E>
 struct AvlNode {
@@ -10,7 +11,7 @@ struct AvlNode {
   AvlNode<E> *left, *right;
   int balance;
 
-  AvlNode(const E& elem) : elem(elem), left{}, right{}, balance{} {}
+  AvlNode(const E& elem) : elem(elem), left{}, right{}, balance{0} {}
 };
 
 template <class E>
@@ -33,7 +34,8 @@ public:
       return;
     }
 
-    root = remove(root, elem);
+    int height_change = 0;
+    std::tie(root, height_change) = remove(root, elem);
   }
 
   void bfs(Visitor v) {
@@ -60,57 +62,144 @@ public:
 private: 
   AvlNode<E> *root;
 
-  void insert(AvlNode<E>* base, const E& elem) {
+  int insert(AvlNode<E>* base, const E& elem) {
     if (base->elem > elem) {
       if (base->left) {
-        return insert(base->left, elem);
+        auto old_bal = base->balance;
+        auto height_change = insert(base->left, elem);
+
+        if (base->left->balance > 1 || base->left->balance < -1) {
+          base->left = rotate(base->left);
+        } else {
+          /* adjust balance */
+          base->balance += height_change;
+        }
+        return (base->balance - old_bal);
       }
       base->left = new AvlNode<E>{elem};
+
+      /* adjust balance */
+      auto old_bal = base->balance;
+      base->balance += 1;
+      return (base->balance - old_bal);
     } else if (base->elem < elem) {
       if (base->right) {
-        return insert(base->right, elem);
+        auto old_bal = base->balance;
+        auto height_change = insert(base->right, elem);
+
+        if (base->right->balance > 1 || base->right->balance < -1) {
+          base->right = rotate(base->right);
+        } else {
+          /* adjust balance */
+          base->balance -= height_change;
+        }
+        return (old_bal - base->balance);
       }
       base->right = new AvlNode<E>{elem};
+
+      /* adjust balance */
+      auto old_bal = base->balance;
+      base->balance -= 1;
+      return (old_bal - base->balance);
     }
+
+    return 0;
   }
 
-  AvlNode<E>* remove(AvlNode<E>* base, const E& elem) {
+  std::tuple<AvlNode<E>*, int> remove(AvlNode<E>* base, const E& elem) {
     if (!base) {
-      return base;
+      return std::make_tuple(base, 0);
     }
 
     if (base->elem == elem) {
       if (base->left == nullptr) {
+        auto new_base = base->right;
         delete base;
-        return base->right;
+        return std::make_tuple(new_base, 1);
       }
       if (base->right == nullptr) {
+        auto new_base = base->left;
         delete base;
-        return base->left;
+        return std::make_tuple(new_base, 1);
       }
 
-      AvlNode<E> *smaller = base->left, *parent = base;
-      while (smaller->right) {
-        parent = smaller;
-        smaller = smaller->right;
-      }
-      if (parent == base) {
-        parent->left = smaller->left;
-      } else {
-        parent->right = smaller->left;
-      }
-      smaller->left = base->left;
-      smaller->right = base->right;
-      base->left = base->right = nullptr;
+      AvlNode<E>* new_base = nullptr;
+      auto result = pluck_largest(base->left, new_base);
+      auto *new_left = std::get<0>(result);
+      auto height_change = std::get<1>(result);
+
+      new_base->balance = base->balance - height_change;
+      new_base->left = new_left;
+      new_base->right = base->right;
       delete base;
-      return smaller;
+      return std::make_tuple(new_base,
+        height_change > 0 && new_base->balance == 0 ? 1 : 0);
     }
 
+    int height_change = 0;
     if (base->elem > elem) {
-      base->left = remove(base->left, elem);
+      std::tie(base->left, height_change) = remove(base->left, elem);
+      base->balance -= height_change;
     } else /* (base->elem < elem) */ {
-      base->right = remove(base->right, elem);
+      std::tie(base->right, height_change) = remove(base->right, elem);
+      base->balance += height_change;
     }
+
+    return std::make_tuple(base, height_change > 0 && base->balance == 0 ? 1 : 0);
+  }
+
+private:
+  AvlNode<E>* rotate(AvlNode<E>* base) {
+    if (base->balance <= 1 && base->balance >= -1) {
+      return base;
+    }
+
+    if (base->balance > 1) {
+      auto new_base = base->left;
+      if (new_base->balance > 0) {
+        base->left = new_base->right;
+        new_base->right = base;
+        base->balance -= 1;
+      } else if (new_base->balance < 0) {
+        new_base = new_base->right;
+        base->left->right = new_base->left;
+        new_base->left = base->left;
+        base->left = new_base->right;
+        new_base->right = base;
+      }
+      return new_base;
+    }
+
+    /* base->balance < -1 */
+    auto new_base = base->right;
+    if (new_base->balance < 0) {
+      base->right = new_base->left;
+      new_base->left = base;
+      base->balance += 1;
+    } else if (new_base->balance > 0) {
+      new_base = new_base->left;
+      base->right->left = new_base->right;
+      new_base->right = base->right;
+      base->right = new_base->left;
+      new_base->left = base;
+    }
+    return new_base;
+  }
+
+  std::tuple<AvlNode<E>*, int> pluck_largest(AvlNode<E>* base, AvlNode<E>*& plucked) {
+    if (base->right) {
+      auto result = pluck_largest(base->right, plucked);
+      auto *sub_tree = std::get<0>(result);
+      auto height_change = std::get<1>(result);
+
+      base->right = sub_tree;
+      base->balance += height_change;
+      height_change = (height_change > 0 && base->balance == 0) ? 1 : 0;
+      return std::make_tuple(base, height_change);
+    }
+
+    plucked = base;
+    return std::make_tuple(base->left, 1);
   }
 };
 
