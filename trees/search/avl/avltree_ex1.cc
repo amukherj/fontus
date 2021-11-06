@@ -30,4 +30,12 @@ int main() {
 	tree1.insert("ocelot");
 	tree1.remove("ibex");
 	tree1.traverse();
+	assert(tree1.find("kangaroo"));
+	assert(tree1.find("lion"));
+	assert(tree1.find("horse"));
+	assert(tree1.find("leopard"));
+	assert(tree1.find("monkey"));
+	assert(tree1.find("lynx"));
+	assert(tree1.find("ocelot"));
+	assert(!tree1.find("ibex"));
 }

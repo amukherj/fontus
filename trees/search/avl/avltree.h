@@ -46,10 +46,10 @@ struct AVLTreeNode {
 	}
 
 	std::optional<T> find(const T& val) {
-		if (val < value) {
+		if (val < value && left) {
 			return left->find(val);
 		}
-		if (val > value) {
+		if (val > value && right) {
 			return right->find(val);
 		}
 		if (val == value) {
