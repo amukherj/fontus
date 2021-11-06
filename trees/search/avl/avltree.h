@@ -3,6 +3,8 @@
 
 #include <bits/stdc++.h>
 
+namespace fontus {
+
 template <typename T>
 struct AVLTreeNode {
 	T value;
@@ -290,5 +292,7 @@ private:
 	std::unique_ptr<AVLTreeNode<T>> root;
 	int count;
 };
+
+} // namespace fontus
 
 #endif /* AVLTREE_H */

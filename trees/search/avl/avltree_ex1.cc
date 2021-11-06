@@ -1,7 +1,7 @@
 #include "avltree.h"
 
 int main() {
-	AVLTree<std::string> tree;
+	fontus::AVLTree<std::string> tree;
 	tree.insert(std::string("hello"));
 	tree.traverse();
 	tree.remove(std::string("hello1"));
@@ -19,7 +19,7 @@ int main() {
 	tree.insert("lemur");
 	tree.traverse();
 
-	AVLTree<std::string> tree1;
+	fontus::AVLTree<std::string> tree1;
 	tree1.insert("kangaroo");
 	tree1.insert("ibex");
 	tree1.insert("lion");
