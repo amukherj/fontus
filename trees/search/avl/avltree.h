@@ -234,6 +234,7 @@ public:
 		}
 		if (root->insert(std::move(value))) {
 			++count;
+			root = rebalance(std::move(root));
 			return true;
 		}
 		return false;
