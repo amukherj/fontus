@@ -22,6 +22,7 @@ struct AVLTreeNode {
 				bool result = left->insert(std::move(val));
 				if (result) {
 					height = compute_height();
+					left = rebalance(std::move(left));
 				}
 				return result;
 			}
@@ -33,6 +34,7 @@ struct AVLTreeNode {
 				bool result = right->insert(std::move(val));
 				if (result) {
 					height = compute_height();
+					right = rebalance(std::move(right));
 				}
 				return result;
 			}
@@ -109,6 +111,45 @@ struct AVLTreeNode {
 		return std::make_pair(false, std::unique_ptr<AVLTreeNode<T>>());
 	}
 
+	static std::unique_ptr<AVLTreeNode<T>> rebalance(
+			std::unique_ptr<AVLTreeNode<T>> base) {
+		int balance = base->compute_balance();
+		if (balance < -1) {
+			if (base->left->compute_balance() > 0) {
+				base->left = rotate_left(std::move(base->left));
+			}
+			if (base->left->compute_balance() < 0) {
+				return rotate_right(std::move(base));
+			}
+		} else if (balance > 1) {
+			if (base->right->compute_balance() < 0) {
+				base->right = rotate_right(std::move(base->right));
+			}
+			if (base->right->compute_balance() > 0) {
+				return rotate_left(std::move(base));
+			}
+		}
+		return std::move(base);
+	}
+
+	static std::unique_ptr<AVLTreeNode<T>> rotate_left(std::unique_ptr<AVLTreeNode<T>> base) {
+		std::unique_ptr<AVLTreeNode<T>> new_root = std::move(base->right);
+		base->right = std::move(new_root->left);
+		base->height = base->compute_height();
+		new_root->left = std::move(base);
+		new_root->height = new_root->compute_height();
+		return new_root;
+	}
+
+	static std::unique_ptr<AVLTreeNode<T>> rotate_right(std::unique_ptr<AVLTreeNode<T>> base) {
+		std::unique_ptr<AVLTreeNode<T>> new_root = std::move(base->left);
+		base->left = std::move(new_root->right);
+		base->height = base->compute_height();
+		new_root->right = std::move(base);
+		new_root->height = new_root->compute_height();
+		return new_root;
+	}
+
 private:
 	std::tuple<bool, T, std::unique_ptr<AVLTreeNode<T>>> remove_smallest() {
 		if (!left) {
@@ -155,6 +196,10 @@ private:
 	int compute_height() const {
 		return 1 + std::max(left ? left->height : 0,
 				right ? right->height : 0);
+	}
+
+	int compute_balance() const {
+		return (right ? right->height : 0) - (left ? left->height : 0);
 	}
 };
 

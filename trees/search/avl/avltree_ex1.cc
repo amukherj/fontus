@@ -15,5 +15,7 @@ int main() {
 	tree.remove(std::string("ibis"));
 	tree.traverse();
 	tree.insert("ibex");
+	tree.insert("kangaroo");
+	tree.insert("lemur");
 	tree.traverse();
 }
