@@ -18,4 +18,16 @@ int main() {
 	tree.insert("kangaroo");
 	tree.insert("lemur");
 	tree.traverse();
+
+	AVLTree<std::string> tree1;
+	tree1.insert("kangaroo");
+	tree1.insert("ibex");
+	tree1.insert("lion");
+	tree1.insert("horse");
+	tree1.insert("leopard");
+	tree1.insert("monkey");
+	tree1.insert("lynx");
+	tree1.insert("ocelot");
+	tree1.remove("ibex");
+	tree1.traverse();
 }

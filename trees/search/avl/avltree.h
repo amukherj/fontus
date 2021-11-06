@@ -98,6 +98,7 @@ struct AVLTreeNode {
 				left = std::move(std::get<1>(result));
 				height = compute_height();
 			}
+			left = rebalance(std::move(left));
 			return std::make_pair(false, std::unique_ptr<AVLTreeNode<T>>());
 		} else if (val > value && right) {
 			std::pair<bool, std::unique_ptr<AVLTreeNode<T>>> result =
@@ -106,6 +107,7 @@ struct AVLTreeNode {
 				right = std::move(std::get<1>(result));
 				height = compute_height();
 			}
+			right = rebalance(std::move(right));
 			return std::make_pair(false, std::unique_ptr<AVLTreeNode<T>>());
 		}
 		return std::make_pair(false, std::unique_ptr<AVLTreeNode<T>>());
@@ -130,24 +132,6 @@ struct AVLTreeNode {
 			}
 		}
 		return std::move(base);
-	}
-
-	static std::unique_ptr<AVLTreeNode<T>> rotate_left(std::unique_ptr<AVLTreeNode<T>> base) {
-		std::unique_ptr<AVLTreeNode<T>> new_root = std::move(base->right);
-		base->right = std::move(new_root->left);
-		base->height = base->compute_height();
-		new_root->left = std::move(base);
-		new_root->height = new_root->compute_height();
-		return new_root;
-	}
-
-	static std::unique_ptr<AVLTreeNode<T>> rotate_right(std::unique_ptr<AVLTreeNode<T>> base) {
-		std::unique_ptr<AVLTreeNode<T>> new_root = std::move(base->left);
-		base->left = std::move(new_root->right);
-		base->height = base->compute_height();
-		new_root->right = std::move(base);
-		new_root->height = new_root->compute_height();
-		return new_root;
 	}
 
 private:
@@ -201,6 +185,26 @@ private:
 	int compute_balance() const {
 		return (right ? right->height : 0) - (left ? left->height : 0);
 	}
+
+	static std::unique_ptr<AVLTreeNode<T>> rotate_left(std::unique_ptr<AVLTreeNode<T>> base) {
+		std::unique_ptr<AVLTreeNode<T>> new_root = std::move(base->right);
+		base->right = std::move(new_root->left);
+		base->height = base->compute_height();
+		new_root->left = std::move(base);
+		new_root->height = new_root->compute_height();
+		return new_root;
+	}
+
+	static std::unique_ptr<AVLTreeNode<T>> rotate_right(std::unique_ptr<AVLTreeNode<T>> base) {
+		std::unique_ptr<AVLTreeNode<T>> new_root = std::move(base->left);
+		base->left = std::move(new_root->right);
+		base->height = base->compute_height();
+		new_root->right = std::move(base);
+		new_root->height = new_root->compute_height();
+		return new_root;
+	}
+
+
 };
 
 template <typename T>
@@ -234,7 +238,7 @@ public:
 		}
 		if (root->insert(std::move(value))) {
 			++count;
-			root = rebalance(std::move(root));
+			root = AVLTreeNode<T>::rebalance(std::move(root));
 			return true;
 		}
 		return false;
@@ -249,6 +253,7 @@ public:
 		if (result.first) {
 			root = std::move(result.second);
 		}
+		root = AVLTreeNode<T>::rebalance(std::move(root));
 		return std::nullopt;
 	}
 
