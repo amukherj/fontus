@@ -53,35 +53,21 @@ public:
 		if (heap.empty()) {
 			return std::nullopt;
 		}
-		int key_id = pos_to_id[0];
-		int priority = heap[0];
-		T key = id_to_key[key_id];
-
-		heap[0] = heap.back();
-		heap.pop_back();
-		pos_to_id[0] = pos_to_id[heap.size()];
-		id_to_pos[pos_to_id[0]] = 0;
-
-		for (int i = 0; 2*i + 1 < heap.size(); ) {
-			if (heap[i] >= heap[2*i + 1] && (heap.size() <= 2*i + 2
-				|| heap[i] >= heap[2*i + 2])) {
-				break;
-			}
-			int j = 2*i + 2;
-			if (j >= heap.size() || heap[j-1] > heap[j]) {
-				j = j-1;
-			}
-			heap_swap(i, j);
-			i = j;
-		}
-		id_pool.insert(key_id);
-		id_to_key[key_id] = "";
-		key_to_id.erase(key);
-
-		return std::make_pair(key, priority);
+		return remove(0);
 	}
 
-	std::optional<std::pair<T, U>> remove(const T& key);
+	std::optional<std::pair<T, U>> remove(const T& key) {
+		if (heap.empty()) {
+			return std::nullopt;
+		}
+		auto iter = key_to_id.find(key);
+		if (iter == key_to_id.end()) {
+			return std::nullopt;
+		}
+
+		int key_id = iter->second;
+		return remove(id_to_pos[key_id]);
+	}
 
 	std::optional<U> query_priority(const T& key) const {
 		auto iter = key_to_id.find(key);
@@ -116,6 +102,7 @@ private:
 	// for reuse
 	std::set<int> id_pool;
 
+	// Swap two elements in the heap at positions i and j.
 	void heap_swap(int i, int j) noexcept {
 		std::swap(heap[i], heap[j]);
 		int key_i = pos_to_id[i];
@@ -124,6 +111,37 @@ private:
 		pos_to_id[j] = key_i;
 		id_to_pos[key_j] = i;
 		id_to_pos[key_i] = j;
+	}
+
+	// Remove the element at position pos in the heap.
+	std::optional<std::pair<T, U>> remove(int pos) {
+		int priority = heap[pos];
+		int key_id = pos_to_id[pos];
+
+		heap[pos] = heap.back();
+		heap.pop_back();
+		pos_to_id[pos] = pos_to_id[heap.size()];
+		id_to_pos[pos_to_id[pos]] = pos;
+
+		for (int i = pos; 2*i + 1 < heap.size(); ) {
+			if (heap[i] >= heap[2*i + 1] && (heap.size() <= 2*i + 2
+				|| heap[i] >= heap[2*i + 2])) {
+				break;
+			}
+			int j = 2*i + 2;
+			if (j >= heap.size() || heap[j-1] > heap[j]) {
+				j = j-1;
+			}
+			heap_swap(i, j);
+			i = j;
+		}
+
+		T key = id_to_key[key_id];
+		id_pool.insert(key_id);
+		id_to_key[key_id] = "";
+		key_to_id.erase(key);
+
+		return std::make_pair(key, priority);
 	}
 };
 

@@ -25,6 +25,10 @@ int main() {
 	std::cout << "Priority for take care is "
 		      << ipq.query_priority("take care").value_or(0) << '\n';
 
+	auto rem = ipq.remove("bongiorno");
+	std::cout << std::get<0>(rem.value_or(
+				std::make_pair(std::string("[]"), 0))) << " removed\n";
+
 	for (auto val = ipq.pop(); val; val = ipq.pop()) {
 		std::cout << std::get<0>(val.value_or(
 					std::make_pair(std::string("[]"), 0))) << " popped\n";
